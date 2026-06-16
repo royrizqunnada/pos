@@ -25,6 +25,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('kasir', [SaleController::class, 'index'])->name('kasir.index');
     Route::post('kasir', [SaleController::class, 'store'])->name('kasir.store');
 
+    // --- Riwayat Penjualan ---
+    Route::get('penjualan', [SaleController::class, 'history'])->name('penjualan.index');
+    Route::get('penjualan/{sale}', [SaleController::class, 'show'])->name('penjualan.show');
+    Route::post('penjualan/{sale}/batal', [SaleController::class, 'void'])->name('penjualan.void');
+
     // --- Barang / Stok ---
     Route::get('barang', [ProductController::class, 'index'])->name('barang.index');
     Route::post('barang', [ProductController::class, 'store'])->name('barang.store');
@@ -32,6 +37,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('barang/{product}', [ProductController::class, 'destroy'])->name('barang.destroy');
     Route::post('barang/{product}/stok', [ProductController::class, 'addStock'])->name('barang.add-stock');
     Route::post('barang/{product}/penyesuaian', [ProductController::class, 'adjust'])->name('barang.adjust');
+    Route::get('barang/{product}/kartu-stok', [ProductController::class, 'stockCard'])->name('barang.stock-card');
 
     // --- Pelanggan & Utang ---
     Route::get('pelanggan', [CustomerController::class, 'index'])->name('pelanggan.index');

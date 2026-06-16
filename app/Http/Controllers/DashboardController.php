@@ -23,6 +23,7 @@ class DashboardController extends Controller
         $todaySummary = $this->reports->salesSummary($today, $today);
 
         $recentSales = Sale::query()
+            ->notVoided()
             ->with('customer:id,name')
             ->latest()
             ->limit(8)

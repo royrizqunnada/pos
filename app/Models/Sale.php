@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\SaleFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,6 +34,9 @@ class Sale extends Model
         'change_amount',
         'status',
         'note',
+        'voided_at',
+        'voided_by',
+        'void_reason',
     ];
 
     protected function casts(): array
@@ -43,12 +47,29 @@ class Sale extends Model
             'total' => 'integer',
             'paid_amount' => 'integer',
             'change_amount' => 'integer',
+            'voided_at' => 'datetime',
         ];
+    }
+
+    public function isVoided(): bool
+    {
+        return $this->voided_at !== null;
+    }
+
+    /** Exclude voided sales (used by reports & dashboard). */
+    public function scopeNotVoided(Builder $query): Builder
+    {
+        return $query->whereNull('voided_at');
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function voidedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'voided_by');
     }
 
     public function customer(): BelongsTo

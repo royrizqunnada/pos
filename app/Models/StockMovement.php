@@ -24,6 +24,8 @@ class StockMovement extends Model
 
     public const TYPE_PAYMENT = 'payment';
 
+    public const TYPE_RETURN = 'return';
+
     protected $fillable = [
         'product_id',
         'type',

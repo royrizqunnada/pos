@@ -136,6 +136,52 @@ class SaleService
         });
     }
 
+    /**
+     * Void (cancel) a sale: restore stock, reverse customer debt, mark as voided.
+     */
+    public function void(Sale $sale, User $user, ?string $reason = null): Sale
+    {
+        if ($sale->isVoided()) {
+            throw ValidationException::withMessages(['sale' => 'Transaksi ini sudah dibatalkan.']);
+        }
+
+        return DB::transaction(function () use ($sale, $user, $reason) {
+            $sale->load('items');
+
+            // Return each item's quantity back to stock.
+            foreach ($sale->items as $item) {
+                $product = Product::query()->lockForUpdate()->find($item->product_id);
+                if ($product) {
+                    $this->stock->recordMovement(
+                        $product,
+                        (float) $item->qty,
+                        StockMovement::TYPE_RETURN,
+                        refType: Sale::class,
+                        refId: $sale->id,
+                        note: 'Pembatalan '.$sale->invoice_no,
+                    );
+                }
+            }
+
+            // Reverse outstanding debt created by an unpaid (utang) sale.
+            if ($sale->status === Sale::STATUS_UTANG && $sale->customer_id) {
+                $customer = Customer::query()->lockForUpdate()->find($sale->customer_id);
+                if ($customer) {
+                    $reduce = min((int) $sale->total, (int) $customer->debt);
+                    $customer->decrement('debt', $reduce);
+                }
+            }
+
+            $sale->forceFill([
+                'voided_at' => now(),
+                'voided_by' => $user->id,
+                'void_reason' => $reason,
+            ])->save();
+
+            return $sale;
+        });
+    }
+
     /** Generate a sequential invoice number per day: TRX-YYYYMMDD-####. */
     private function generateInvoiceNo(): string
     {

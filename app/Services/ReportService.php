@@ -15,6 +15,7 @@ class ReportService
     public function salesSummary(string $from, string $to): array
     {
         $row = Sale::query()
+            ->notVoided()
             ->whereBetween('created_at', $this->range($from, $to))
             ->selectRaw('COUNT(*) as trx, COALESCE(SUM(total), 0) as omzet, COALESCE(SUM(discount), 0) as diskon')
             ->first();
@@ -37,6 +38,7 @@ class ReportService
             ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
             ->join('products', 'products.id', '=', 'sale_items.product_id')
             ->whereBetween('sales.created_at', $this->range($from, $to))
+            ->whereNull('sales.voided_at')
             ->sum(DB::raw('sale_items.qty * products.cost_price'));
     }
 
@@ -61,6 +63,7 @@ class ReportService
             ->join('products', 'products.id', '=', 'sale_items.product_id')
             ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
             ->whereBetween('sales.created_at', $this->range($from, $to))
+            ->whereNull('sales.voided_at')
             ->groupBy('categories.id', 'categories.name', 'categories.color')
             ->selectRaw('categories.name as name, categories.color as color, SUM(sale_items.subtotal) as total, SUM(sale_items.qty) as qty')
             ->orderByDesc('total')
@@ -80,6 +83,7 @@ class ReportService
         return SaleItem::query()
             ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
             ->whereBetween('sales.created_at', $this->range($from, $to))
+            ->whereNull('sales.voided_at')
             ->groupBy('sale_items.product_id', 'sale_items.product_name', 'sale_items.unit_name')
             ->selectRaw('sale_items.product_name as name, sale_items.unit_name as unit, SUM(sale_items.qty) as qty, SUM(sale_items.subtotal) as total')
             ->orderByDesc('qty')
@@ -100,6 +104,7 @@ class ReportService
         $start = CarbonImmutable::today()->subDays($days - 1);
 
         $rows = Sale::query()
+            ->notVoided()
             ->where('created_at', '>=', $start->startOfDay())
             ->selectRaw('CAST(created_at AS DATE) as d, SUM(total) as total')
             ->groupBy('d')

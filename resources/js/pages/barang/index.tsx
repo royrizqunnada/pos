@@ -11,8 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import PosLayout from '@/layouts/pos-layout';
 import { formatQty, formatRupiah } from '@/lib/format';
 import { type Category, type Paginated, type Product, type Unit } from '@/types';
-import { router, useForm } from '@inertiajs/react';
-import { AlertTriangle, Boxes, PackagePlus, Pencil, Plus, Search, SlidersHorizontal, Trash2, Wallet } from 'lucide-react';
+import { Link, router, useForm } from '@inertiajs/react';
+import { AlertTriangle, Boxes, ClipboardList, PackagePlus, Pencil, Plus, Search, SlidersHorizontal, Trash2, Wallet } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface Props {
@@ -167,7 +167,9 @@ export default function BarangIndex({ products, categories, units, filters, summ
                                 {products.data.map((p) => (
                                     <tr key={p.id} className="border-border hover:bg-surface-alt/50 border-b last:border-0">
                                         <td className="px-4 py-3">
-                                            <div className="text-foreground font-medium">{p.name}</div>
+                                            <Link href={`/barang/${p.id}/kartu-stok`} className="text-foreground hover:text-primary font-medium">
+                                                {p.name}
+                                            </Link>
                                             <div className="text-muted-foreground text-xs">
                                                 {p.sku ?? '—'}
                                                 {p.barcode ? ` · ${p.barcode}` : ''}
@@ -205,6 +207,11 @@ export default function BarangIndex({ products, categories, units, filters, summ
                                         {can.manage && (
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-end gap-1">
+                                                    <Button size="icon" variant="ghost" title="Kartu stok" asChild>
+                                                        <Link href={`/barang/${p.id}/kartu-stok`}>
+                                                            <ClipboardList className="h-4 w-4" />
+                                                        </Link>
+                                                    </Button>
                                                     <Button size="icon" variant="ghost" title="Tambah stok" onClick={() => openStock(p, 'add')}>
                                                         <PackagePlus className="h-4 w-4" />
                                                     </Button>

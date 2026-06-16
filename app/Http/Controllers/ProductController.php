@@ -124,6 +124,34 @@ class ProductController extends Controller
         return back()->with('success', 'Stok berhasil disesuaikan.');
     }
 
+    /** Stock card: movement history for a single product. */
+    public function stockCard(Product $product): Response
+    {
+        $this->authorize('view', $product);
+
+        $movements = $product->stockMovements()
+            ->latest('id')
+            ->paginate(25)
+            ->through(fn (StockMovement $m) => [
+                'id' => $m->id,
+                'type' => $m->type,
+                'qty_change' => (float) $m->qty_change,
+                'stock_after' => (float) $m->stock_after,
+                'note' => $m->note,
+                'created_at' => $m->created_at?->toIso8601String(),
+            ]);
+
+        return Inertia::render('barang/kartu-stok', [
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'unit_name' => $product->unit?->name ?? '',
+                'stock' => (float) $product->stock,
+            ],
+            'movements' => $movements,
+        ]);
+    }
+
     /** Shape a product for the frontend, hiding cost data from cashiers. */
     private function transform(Product $p, bool $canSeeCost): array
     {
