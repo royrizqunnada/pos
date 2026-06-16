@@ -79,6 +79,30 @@ export interface Unit {
     name: string;
 }
 
+export interface ReceiptItem {
+    name: string;
+    unit: string;
+    qty: number;
+    price: number;
+    subtotal: number;
+}
+
+export interface ReceiptData {
+    invoice_no: string;
+    created_at: string;
+    cashier: string | null;
+    customer: string | null;
+    items: ReceiptItem[];
+    subtotal: number;
+    discount: number;
+    total: number;
+    payment_method: 'tunai' | 'utang';
+    paid_amount: number;
+    change_amount: number;
+    status: 'lunas' | 'utang';
+    store: { name: string; address: string | null; phone: string | null; footer: string | null };
+}
+
 export interface Product {
     id: number;
     sku: string | null;

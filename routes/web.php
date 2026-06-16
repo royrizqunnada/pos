@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SaleController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -12,6 +13,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    // --- Kasir / POS ---
+    Route::get('kasir', [SaleController::class, 'index'])->name('kasir.index');
+    Route::post('kasir', [SaleController::class, 'store'])->name('kasir.store');
 
     // --- Barang / Stok ---
     Route::get('barang', [ProductController::class, 'index'])->name('barang.index');
