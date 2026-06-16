@@ -1,7 +1,7 @@
 # Berkah Jaya — Point of Sale Toko Bangunan
 
 Sistem Point of Sale (POS) untuk toko bahan bangunan / material **Berkah Jaya**.
-Dibangun dengan **Laravel 12 + Inertia 2 + React 19 + TypeScript + Tailwind 4 (shadcn/ui)**
+Dibangun dengan **Laravel 13 + Inertia 2 + React 19 + TypeScript + Tailwind 4 (shadcn/ui)**
 dan database **PostgreSQL**. Seluruh antarmuka berbahasa Indonesia, mata uang Rupiah (tanpa desimal).
 
 ## Fitur Utama
@@ -25,9 +25,14 @@ Otorisasi memakai Laravel Gate/Policy; menu yang tidak relevan disembunyikan di 
 
 ## Kebutuhan Sistem
 
-- PHP 8.4, Composer 2
+- PHP 8.3+ (diuji pada 8.4), Composer 2
 - Node.js 22 + npm
 - PostgreSQL 14+
+
+> Catatan versi: framework dipin ke `~13.15.0`. Rilis `laravel/framework v13.16.0`
+> memiliki regresi yang membuat seluruh perintah `artisan` gagal di konsol
+> (registrasi `DevCommands` dari vendor) — terbukti juga pada skeleton L13 baru.
+> Naikkan ke `^13.16.1` begitu perbaikan upstream tersedia.
 
 ## Setup Lokal
 
