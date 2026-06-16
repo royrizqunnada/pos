@@ -378,8 +378,13 @@ export default function KasirIndex({ products, categories, customers, receipt }:
 
                         {form.errors.items && <p className="text-destructive text-xs">{form.errors.items}</p>}
 
-                        <Button className="w-full" size="lg" disabled={!canSubmit || form.processing} onClick={submit}>
-                            Proses Transaksi
+                        <Button
+                            className="bg-success text-success-foreground hover:bg-success/90 w-full"
+                            size="lg"
+                            disabled={!canSubmit || form.processing}
+                            onClick={submit}
+                        >
+                            <ShoppingCart className="h-4 w-4" /> Proses Pembayaran
                         </Button>
                     </div>
                 </div>

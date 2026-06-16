@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Product;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -55,6 +56,7 @@ class HandleInertiaRequests extends Middleware
             'settings' => [
                 'store_name' => Setting::current()->store_name,
             ],
+            'lowStockCount' => $user ? Product::lowStock()->count() : 0,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),

@@ -40,6 +40,7 @@ export interface SharedData {
     auth: Auth;
     settings: { store_name: string };
     flash: { success: string | null; error: string | null };
+    lowStockCount: number;
     [key: string]: unknown;
 }
 

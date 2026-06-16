@@ -13,7 +13,7 @@ function isActive(currentUrl: string, itemUrl: string): boolean {
 
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
     const page = usePage<SharedData>();
-    const { auth, settings } = page.props;
+    const { auth, settings, lowStockCount } = page.props;
     const permissions = auth.permissions;
     const url = page.url.split('?')[0];
 
@@ -51,6 +51,16 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                         >
                             {Icon && <Icon className="h-5 w-5 shrink-0" />}
                             <span>{item.title}</span>
+                            {item.url === '/barang' && lowStockCount > 0 && (
+                                <span
+                                    className={cn(
+                                        'ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold',
+                                        active ? 'bg-white/25 text-white' : 'bg-destructive text-destructive-foreground',
+                                    )}
+                                >
+                                    {lowStockCount}
+                                </span>
+                            )}
                         </Link>
                     );
                 })}

@@ -5,7 +5,6 @@ import { Pagination } from '@/components/pos/pagination';
 import { ProductFormDialog } from '@/components/pos/product-form-dialog';
 import { StatCard } from '@/components/pos/stat-card';
 import { StockDialog } from '@/components/pos/stock-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -160,6 +159,7 @@ export default function BarangIndex({ products, categories, units, filters, summ
                                     <th className="px-4 py-3 text-right font-medium">Harga Jual</th>
                                     {can.view_cost && <th className="px-4 py-3 text-right font-medium">Harga Modal</th>}
                                     <th className="px-4 py-3 text-right font-medium">Stok</th>
+                                    <th className="px-4 py-3 font-medium">Status</th>
                                     {can.manage && <th className="px-4 py-3 text-right font-medium">Aksi</th>}
                                 </tr>
                             </thead>
@@ -188,17 +188,19 @@ export default function BarangIndex({ products, categories, units, filters, summ
                                         {can.view_cost && (
                                             <td className="tabular text-muted-foreground px-4 py-3 text-right">{formatRupiah(p.cost_price)}</td>
                                         )}
-                                        <td className="px-4 py-3 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <span className="tabular font-medium">
-                                                    {formatQty(p.stock)} {p.unit?.name}
+                                        <td className="tabular px-4 py-3 text-right font-medium">
+                                            {formatQty(p.stock)} {p.unit?.name}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {p.is_low_stock ? (
+                                                <span className="bg-destructive/10 text-destructive inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                                                    <AlertTriangle className="h-3 w-3" /> Menipis
                                                 </span>
-                                                {p.is_low_stock && (
-                                                    <Badge variant="destructive" className="gap-1">
-                                                        <AlertTriangle className="h-3 w-3" /> Menipis
-                                                    </Badge>
-                                                )}
-                                            </div>
+                                            ) : (
+                                                <span className="bg-success/10 text-success inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                                                    Aman
+                                                </span>
+                                            )}
                                         </td>
                                         {can.manage && (
                                             <td className="px-4 py-3">

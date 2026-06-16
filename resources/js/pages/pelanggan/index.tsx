@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import PosLayout from '@/layouts/pos-layout';
 import { formatRupiah } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import { type Paginated } from '@/types';
 import { Link, router, useForm } from '@inertiajs/react';
 import { HandCoins, Pencil, Plus, Search, Trash2, Users, Wallet } from 'lucide-react';
@@ -86,83 +87,82 @@ export default function PelangganIndex({ customers, filters, summary, can }: Pro
                 </Button>
             </div>
 
-            <div className="border-border bg-card overflow-hidden rounded-xl border">
-                {customers.data.length === 0 ? (
+            {customers.data.length === 0 ? (
+                <div className="border-border bg-card rounded-xl border">
                     <EmptyState icon={Users} title="Belum ada pelanggan" description="Tambahkan pelanggan untuk mencatat transaksi & utang." />
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="border-border bg-surface-alt text-muted-foreground border-b text-left text-xs tracking-wide uppercase">
-                                    <th className="px-4 py-3 font-medium">Nama</th>
-                                    <th className="px-4 py-3 font-medium">Telepon</th>
-                                    <th className="px-4 py-3 text-right font-medium">Utang</th>
-                                    <th className="px-4 py-3 text-right font-medium">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {customers.data.map((c) => (
-                                    <tr key={c.id} className="border-border hover:bg-surface-alt/50 border-b last:border-0">
-                                        <td className="px-4 py-3">
-                                            <Link href={`/pelanggan/${c.id}`} className="text-foreground hover:text-primary font-medium">
-                                                {c.name}
-                                            </Link>
-                                            {c.address && <div className="text-muted-foreground text-xs">{c.address}</div>}
-                                        </td>
-                                        <td className="text-muted-foreground px-4 py-3">{c.phone ?? '—'}</td>
-                                        <td className="tabular px-4 py-3 text-right">
-                                            {c.debt > 0 ? (
-                                                <span className="text-destructive font-semibold">{formatRupiah(c.debt)}</span>
-                                            ) : (
-                                                <span className="text-muted-foreground">Lunas</span>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex items-center justify-end gap-1">
-                                                {c.debt > 0 && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        onClick={() => {
-                                                            setPaying(c);
-                                                            setPayOpen(true);
-                                                        }}
-                                                    >
-                                                        <HandCoins className="h-4 w-4" /> Bayar
-                                                    </Button>
-                                                )}
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    title="Edit"
-                                                    onClick={() => {
-                                                        setEditing(c);
-                                                        setFormOpen(true);
-                                                    }}
-                                                >
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                {can.delete && (
-                                                    <Button
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        title="Hapus"
-                                                        className="text-destructive hover:text-destructive"
-                                                        onClick={() => setDeleting(c)}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                </div>
+            ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                    {customers.data.map((c) => (
+                        <div key={c.id} className="border-border bg-card rounded-xl border p-4">
+                            <div className="flex items-start gap-3">
+                                <div className="bg-accent font-display text-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+                                    {c.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <Link href={`/pelanggan/${c.id}`} className="text-foreground hover:text-primary font-medium">
+                                        {c.name}
+                                    </Link>
+                                    <div className="text-muted-foreground text-xs">{c.phone ?? '—'}</div>
+                                </div>
+                                <div className="flex shrink-0 items-center gap-1">
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        title="Edit"
+                                        onClick={() => {
+                                            setEditing(c);
+                                            setFormOpen(true);
+                                        }}
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    {can.delete && (
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            title="Hapus"
+                                            className="text-destructive hover:text-destructive"
+                                            onClick={() => setDeleting(c)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div
+                                className={cn(
+                                    'mt-3 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5',
+                                    c.debt > 0 ? 'bg-destructive/10' : 'bg-success/10',
+                                )}
+                            >
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Utang</div>
+                                    <div className={cn('font-display tabular font-semibold', c.debt > 0 ? 'text-destructive' : 'text-success')}>
+                                        {formatRupiah(c.debt)}
+                                    </div>
+                                </div>
+                                {c.debt > 0 && (
+                                    <Button
+                                        size="sm"
+                                        className="bg-sidebar hover:bg-sidebar/90 text-white"
+                                        onClick={() => {
+                                            setPaying(c);
+                                            setPayOpen(true);
+                                        }}
+                                    >
+                                        <HandCoins className="h-4 w-4" /> Bayar
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                    <div className="sm:col-span-2">
+                        <Pagination paginator={customers} />
                     </div>
-                )}
-                <Pagination paginator={customers} />
-            </div>
+                </div>
+            )}
 
             <CustomerFormDialog open={formOpen} onOpenChange={setFormOpen} customer={editing} />
             <PayDebtDialog open={payOpen} onOpenChange={setPayOpen} customer={paying} />

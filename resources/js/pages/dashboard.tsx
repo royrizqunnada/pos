@@ -4,7 +4,7 @@ import PosLayout from '@/layouts/pos-layout';
 import { formatQty, formatRupiah } from '@/lib/format';
 import { Link } from '@inertiajs/react';
 import { AlertTriangle, ArrowRight, Receipt, ShoppingBag, TrendingUp, Wallet } from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface Props {
     kpi: {
@@ -60,7 +60,11 @@ export default function Dashboard({ kpi, chart, top_products, recent_sales, is_o
                                     formatter={(value) => [formatRupiah(value as number), 'Omzet']}
                                     contentStyle={{ borderRadius: 10, border: '1px solid #E2DACE', fontSize: 13 }}
                                 />
-                                <Bar dataKey="total" fill="#E15A12" radius={[6, 6, 0, 0]} maxBarSize={48} />
+                                <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={48}>
+                                    {chart.map((_, i) => (
+                                        <Cell key={i} fill={i === chart.length - 1 ? '#E15A12' : '#D8CEBF'} />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -73,19 +77,27 @@ export default function Dashboard({ kpi, chart, top_products, recent_sales, is_o
                         <p className="text-muted-foreground py-8 text-center text-sm">Belum ada penjualan.</p>
                     ) : (
                         <ol className="space-y-3">
-                            {top_products.map((p, i) => (
-                                <li key={i} className="flex items-center gap-3">
-                                    <span className="bg-accent text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
-                                        {i + 1}
-                                    </span>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="truncate text-sm font-medium">{p.name}</div>
-                                        <div className="text-muted-foreground text-xs">
-                                            {formatQty(p.qty)} {p.unit} · {formatRupiah(p.total)}
+                            {top_products.map((p, i) => {
+                                const maxQty = Math.max(1, ...top_products.map((x) => x.qty));
+                                return (
+                                    <li key={i} className="flex items-center gap-3">
+                                        <span className="bg-accent text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+                                            {i + 1}
+                                        </span>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span className="truncate text-sm font-medium">{p.name}</span>
+                                                <span className="text-muted-foreground tabular shrink-0 text-xs">
+                                                    {formatQty(p.qty)} {p.unit}
+                                                </span>
+                                            </div>
+                                            <div className="bg-accent mt-1 h-1.5 overflow-hidden rounded-full">
+                                                <div className="bg-primary h-full rounded-full" style={{ width: `${(p.qty / maxQty) * 100}%` }} />
+                                            </div>
                                         </div>
-                                    </div>
-                                </li>
-                            ))}
+                                    </li>
+                                );
+                            })}
                         </ol>
                     )}
                 </div>
