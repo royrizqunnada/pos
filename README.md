@@ -97,18 +97,34 @@ Test berjalan di SQLite in-memory; aplikasi produksi memakai PostgreSQL.
 
 Target: subdomain `pos.digisolve.id`, PHP 8.4, database PostgreSQL terpisah.
 
-Pastikan `.env` produksi: `APP_ENV=production`, `APP_DEBUG=false`,
-`APP_URL=https://pos.digisolve.id`, dan kredensial PostgreSQL terisi.
+Script deploy lengkap tersedia di [`deploy.sh`](deploy.sh) — salin isinya ke kolom
+**Deploy Script** pada site Ploi, atau panggil `bash deploy.sh` dari root site.
+Script menangani: `git pull`, `composer install --no-dev`, `npm ci && build`,
+maintenance mode, `migrate --force`, cache config/route/view/event, `storage:link`,
+`queue:restart`, dan reload PHP-FPM.
 
-Deployment script Ploi:
+### Langkah satu kali sebelum deploy pertama
 
-```bash
-cd /home/ploi/pos.digisolve.id
-git pull origin main
-composer install --no-dev --optimize-autoloader
-npm ci && npm run build
-php artisan migrate --force
-php artisan db:seed --force   # hanya saat deploy pertama
-php artisan config:cache && php artisan route:cache && php artisan view:cache
-php artisan storage:link
-```
+1. **Buat database PostgreSQL** khusus untuk site ini di Ploi, lalu isi `.env` produksi:
+
+   ```dotenv
+   APP_NAME="Berkah Jaya"
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://pos.digisolve.id
+
+   DB_CONNECTION=pgsql
+   DB_HOST=127.0.0.1
+   DB_PORT=5432
+   DB_DATABASE=pos_digisolve
+   DB_USERNAME=__user__
+   DB_PASSWORD=__password__
+   ```
+
+2. **Generate app key** (sekali): `php artisan key:generate`.
+3. **Aktifkan seeder pada deploy pertama** — buka komentar baris
+   `php artisan db:seed --force` di `deploy.sh`, jalankan deploy, lalu
+   komentari kembali agar deploy berikutnya tidak menimpa data.
+
+> Catatan: `.env` tidak ikut di-commit (di-`.gitignore`). Isi melalui editor
+> environment di panel Ploi.
