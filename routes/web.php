@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\StoreSettingController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,6 +52,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('pembelian/baru', [PurchaseController::class, 'create'])->name('pembelian.create');
         Route::get('pembelian/{purchase}', [PurchaseController::class, 'show'])->name('pembelian.show');
         Route::post('pembelian', [PurchaseController::class, 'store'])->name('pembelian.store');
+
+        // --- Pengaturan (profil toko + akun pengguna) ---
+        Route::get('pengaturan', [StoreSettingController::class, 'index'])->name('pengaturan.index');
+        Route::put('pengaturan/toko', [StoreSettingController::class, 'updateStore'])->name('pengaturan.store');
+        Route::post('pengaturan/pengguna', [StoreSettingController::class, 'storeUser'])->name('pengaturan.user.store');
+        Route::put('pengaturan/pengguna/{user}', [StoreSettingController::class, 'updateUser'])->name('pengaturan.user.update');
     });
 });
 

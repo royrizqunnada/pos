@@ -50,6 +50,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Block deactivated accounts from accessing the system.
+        if (Auth::user()->is_active === false) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun ini telah dinonaktifkan. Hubungi pemilik toko.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
