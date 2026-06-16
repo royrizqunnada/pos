@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +26,14 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('barang/{product}', [ProductController::class, 'destroy'])->name('barang.destroy');
     Route::post('barang/{product}/stok', [ProductController::class, 'addStock'])->name('barang.add-stock');
     Route::post('barang/{product}/penyesuaian', [ProductController::class, 'adjust'])->name('barang.adjust');
+
+    // --- Pelanggan & Utang ---
+    Route::get('pelanggan', [CustomerController::class, 'index'])->name('pelanggan.index');
+    Route::get('pelanggan/{customer}', [CustomerController::class, 'show'])->name('pelanggan.show');
+    Route::post('pelanggan', [CustomerController::class, 'store'])->name('pelanggan.store');
+    Route::put('pelanggan/{customer}', [CustomerController::class, 'update'])->name('pelanggan.update');
+    Route::delete('pelanggan/{customer}', [CustomerController::class, 'destroy'])->name('pelanggan.destroy');
+    Route::post('pelanggan/{customer}/bayar', [CustomerController::class, 'payDebt'])->name('pelanggan.pay');
 });
 
 require __DIR__.'/settings.php';
