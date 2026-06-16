@@ -1,21 +1,24 @@
 <?php
 
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
 })->name('home');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // --- Laporan ---
+    Route::get('laporan', [ReportController::class, 'index'])->name('laporan.index');
+    Route::get('laporan/ekspor', [ReportController::class, 'export'])->name('laporan.export');
 
     // --- Kasir / POS ---
     Route::get('kasir', [SaleController::class, 'index'])->name('kasir.index');
