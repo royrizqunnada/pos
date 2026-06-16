@@ -78,3 +78,23 @@ export interface Unit {
     id: number;
     name: string;
 }
+
+export interface Product {
+    id: number;
+    sku: string | null;
+    barcode: string | null;
+    name: string;
+    category: Category | null;
+    unit: Unit | null;
+    category_id: number;
+    unit_id: number;
+    sell_price: number;
+    wholesale_price: number | null;
+    wholesale_min_qty: number | null;
+    stock: number;
+    min_stock: number;
+    is_active: boolean;
+    is_low_stock: boolean;
+    /** Null for cashiers (cost price hidden). */
+    cost_price: number | null;
+}
