@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSaleRequest;
+use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
@@ -50,6 +51,13 @@ class SaleController extends Controller
     public function store(StoreSaleRequest $request): RedirectResponse
     {
         $sale = $this->sales->create($request->user(), $request->validated());
+
+        ActivityLog::record(
+            'penjualan.buat',
+            "Membuat penjualan {$sale->invoice_no} (".($sale->payment_method === Sale::PAYMENT_UTANG ? 'utang' : 'tunai').') senilai Rp'.number_format($sale->total, 0, ',', '.').'.',
+            $sale,
+            ['total' => (int) $sale->total, 'payment_method' => $sale->payment_method],
+        );
 
         return redirect()
             ->route('kasir.index')
@@ -125,6 +133,13 @@ class SaleController extends Controller
         $request->validate(['reason' => ['nullable', 'string', 'max:255']]);
 
         $this->sales->void($sale, $request->user(), $request->input('reason'));
+
+        ActivityLog::record(
+            'penjualan.batal',
+            "Membatalkan penjualan {$sale->invoice_no}".($request->input('reason') ? ' — '.$request->input('reason') : '').'.',
+            $sale,
+            ['total' => (int) $sale->total, 'reason' => $request->input('reason')],
+        );
 
         return back()->with('success', "Transaksi {$sale->invoice_no} berhasil dibatalkan, stok dikembalikan.");
     }

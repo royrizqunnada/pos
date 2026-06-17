@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PayDebtRequest;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
+use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\CustomerPayment;
 use Illuminate\Http\RedirectResponse;
@@ -84,7 +85,9 @@ class CustomerController extends Controller
 
     public function store(StoreCustomerRequest $request): RedirectResponse
     {
-        Customer::create($request->validated());
+        $customer = Customer::create($request->validated());
+
+        ActivityLog::record('pelanggan.buat', "Menambah pelanggan \"{$customer->name}\".", $customer);
 
         return back()->with('success', 'Pelanggan berhasil ditambahkan.');
     }
@@ -92,6 +95,8 @@ class CustomerController extends Controller
     public function update(UpdateCustomerRequest $request, Customer $customer): RedirectResponse
     {
         $customer->update($request->validated());
+
+        ActivityLog::record('pelanggan.ubah', "Mengubah pelanggan \"{$customer->name}\".", $customer);
 
         return back()->with('success', 'Pelanggan berhasil diperbarui.');
     }
@@ -104,7 +109,10 @@ class CustomerController extends Controller
             return back()->with('error', 'Pelanggan masih memiliki utang dan tidak dapat dihapus.');
         }
 
+        $name = $customer->name;
         $customer->delete();
+
+        ActivityLog::record('pelanggan.hapus', "Menghapus pelanggan \"{$name}\".");
 
         return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil dihapus.');
     }
@@ -113,7 +121,7 @@ class CustomerController extends Controller
     {
         $amount = (int) $request->validated('amount');
 
-        DB::transaction(function () use ($request, $customer, $amount) {
+        $paid = DB::transaction(function () use ($request, $customer, $amount) {
             $locked = Customer::query()->lockForUpdate()->findOrFail($customer->id);
 
             $pay = min($amount, (int) $locked->debt);
@@ -125,7 +133,11 @@ class CustomerController extends Controller
                 'note' => $request->validated('note'),
                 'paid_at' => now(),
             ]);
+
+            return $pay;
         });
+
+        ActivityLog::record('pelanggan.bayar', "Mencatat pembayaran utang \"{$customer->name}\" sebesar Rp".number_format($paid, 0, ',', '.').'.', $customer, ['amount' => $paid]);
 
         return back()->with('success', 'Pembayaran utang berhasil dicatat.');
     }

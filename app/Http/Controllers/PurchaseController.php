@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePurchaseRequest;
+use App\Models\ActivityLog;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Supplier;
@@ -53,6 +54,13 @@ class PurchaseController extends Controller
     public function store(StorePurchaseRequest $request): RedirectResponse
     {
         $purchase = $this->purchases->create($request->user(), $request->validated());
+
+        ActivityLog::record(
+            'pembelian.buat',
+            "Mencatat pembelian {$purchase->ref_no} senilai Rp".number_format($purchase->total, 0, ',', '.').'.',
+            $purchase,
+            ['total' => (int) $purchase->total],
+        );
 
         return redirect()->route('pembelian.index')->with('success', "Pembelian {$purchase->ref_no} berhasil, stok diperbarui.");
     }

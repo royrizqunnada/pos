@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PosLayout from '@/layouts/pos-layout';
+import { formatDateTime } from '@/lib/format';
 import { type Role } from '@/types';
-import { useForm } from '@inertiajs/react';
-import { Plus, Store, UserCog } from 'lucide-react';
+import { Link, useForm } from '@inertiajs/react';
+import { History, Plus, Store, UserCog } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface UserRow {
@@ -18,12 +19,22 @@ interface UserRow {
     is_active: boolean;
 }
 
+export interface LogRow {
+    id: number;
+    event: string;
+    description: string;
+    user: string;
+    ip_address: string | null;
+    created_at: string;
+}
+
 interface Props {
     setting: { store_name: string; store_address: string | null; store_phone: string | null; receipt_footer: string | null };
     users: UserRow[];
+    logs: LogRow[];
 }
 
-export default function PengaturanIndex({ setting, users }: Props) {
+export default function PengaturanIndex({ setting, users, logs }: Props) {
     const store = useForm({
         store_name: setting.store_name ?? '',
         store_address: setting.store_address ?? '',
@@ -164,6 +175,37 @@ export default function PengaturanIndex({ setting, users }: Props) {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {/* Activity log */}
+            <div className="border-border bg-card mt-4 rounded-xl border p-5">
+                <div className="mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <History className="text-primary h-5 w-5" />
+                        <h2 className="font-display font-semibold">Log Aktivitas</h2>
+                    </div>
+                    <Link href="/pengaturan/log" className="text-primary text-sm font-medium hover:underline">
+                        Lihat semua
+                    </Link>
+                </div>
+                {logs.length === 0 ? (
+                    <p className="text-muted-foreground py-6 text-center text-sm">Belum ada aktivitas tercatat.</p>
+                ) : (
+                    <ul className="divide-border divide-y">
+                        {logs.map((l) => (
+                            <li key={l.id} className="flex items-start justify-between gap-4 py-2.5">
+                                <div>
+                                    <p className="text-sm">{l.description}</p>
+                                    <p className="text-muted-foreground text-xs">
+                                        {l.user}
+                                        {l.ip_address ? ` · ${l.ip_address}` : ''}
+                                    </p>
+                                </div>
+                                <span className="text-muted-foreground shrink-0 text-xs whitespace-nowrap">{formatDateTime(l.created_at)}</span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
 
             <Dialog open={userOpen} onOpenChange={setUserOpen}>

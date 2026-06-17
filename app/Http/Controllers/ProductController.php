@@ -7,6 +7,7 @@ use App\Http\Requests\AdjustStockRequest;
 use App\Http\Requests\ImportProductRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\StockMovement;
@@ -76,7 +77,7 @@ class ProductController extends Controller
     {
         $data = $request->validated();
 
-        DB::transaction(function () use ($data) {
+        $product = DB::transaction(function () use ($data) {
             $product = Product::create($data);
 
             if ((float) $product->stock > 0) {
@@ -87,7 +88,11 @@ class ProductController extends Controller
                     'note' => 'Stok awal',
                 ]);
             }
+
+            return $product;
         });
+
+        ActivityLog::record('barang.buat', "Menambah barang \"{$product->name}\".", $product);
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan.');
     }
@@ -96,6 +101,8 @@ class ProductController extends Controller
     {
         // Stock is intentionally not editable here; use tambah stok / penyesuaian.
         $product->update($request->validated());
+
+        ActivityLog::record('barang.ubah', "Mengubah barang \"{$product->name}\".", $product);
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil diperbarui.');
     }
@@ -108,21 +115,31 @@ class ProductController extends Controller
             return back()->with('error', 'Barang tidak dapat dihapus karena sudah memiliki riwayat penjualan. Nonaktifkan saja.');
         }
 
+        $name = $product->name;
         $product->delete();
+
+        ActivityLog::record('barang.hapus', "Menghapus barang \"{$name}\".");
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus.');
     }
 
     public function addStock(AddStockRequest $request, Product $product): RedirectResponse
     {
-        $this->stock->addStock($product, (float) $request->validated('qty'), $request->validated('note'));
+        $qty = (float) $request->validated('qty');
+        $this->stock->addStock($product, $qty, $request->validated('note'));
+
+        ActivityLog::record('barang.stok', "Menambah stok \"{$product->name}\" sebanyak ".rtrim(rtrim(number_format($qty, 2, ',', '.'), '0'), ',')." {$product->unit?->name}.", $product, ['qty' => $qty]);
 
         return back()->with('success', 'Stok berhasil ditambahkan.');
     }
 
     public function adjust(AdjustStockRequest $request, Product $product): RedirectResponse
     {
-        $this->stock->adjustTo($product, (float) $request->validated('stock'), $request->validated('reason'));
+        $target = (float) $request->validated('stock');
+        $reason = $request->validated('reason');
+        $this->stock->adjustTo($product, $target, $reason);
+
+        ActivityLog::record('barang.penyesuaian', "Menyesuaikan stok \"{$product->name}\" menjadi ".rtrim(rtrim(number_format($target, 2, ',', '.'), '0'), ',')." {$product->unit?->name} — {$reason}.", $product, ['stock' => $target, 'reason' => $reason]);
 
         return back()->with('success', 'Stok berhasil disesuaikan.');
     }

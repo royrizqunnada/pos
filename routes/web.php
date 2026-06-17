@@ -63,6 +63,7 @@ Route::middleware(['auth'])->group(function () {
 
         // --- Pengaturan (profil toko + akun pengguna) ---
         Route::get('pengaturan', [StoreSettingController::class, 'index'])->name('pengaturan.index');
+        Route::get('pengaturan/log', [StoreSettingController::class, 'activity'])->name('pengaturan.log');
         Route::put('pengaturan/toko', [StoreSettingController::class, 'updateStore'])->name('pengaturan.store');
         Route::post('pengaturan/pengguna', [StoreSettingController::class, 'storeUser'])->name('pengaturan.user.store');
         Route::put('pengaturan/pengguna/{user}', [StoreSettingController::class, 'updateUser'])->name('pengaturan.user.update');

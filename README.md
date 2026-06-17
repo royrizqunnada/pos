@@ -12,7 +12,7 @@ dan database **PostgreSQL**. Seluruh antarmuka berbahasa Indonesia, mata uang Ru
 - **Pelanggan & Utang** — CRUD pelanggan, saldo utang berjalan, pembayaran utang + riwayat.
 - **Pemasok & Pembelian** — CRUD pemasok, form pembelian yang menambah stok & memperbarui harga modal.
 - **Laporan** — filter rentang tanggal: rekap penjualan, laba kotor (pemilik), penjualan per kategori, barang terlaris, piutang, nilai persediaan; ekspor CSV.
-- **Pengaturan** — profil toko (header/footer struk) & manajemen akun (tambah/nonaktifkan/reset sandi).
+- **Pengaturan** — profil toko (header/footer struk), manajemen akun (tambah/nonaktifkan/reset sandi), & **log aktivitas** (jejak audit: login/logout, penjualan, pembatalan, perubahan barang/stok, pembelian, pelanggan, pembayaran utang, dan perubahan pengaturan — dengan pengguna, waktu, dan alamat IP; bisa difilter).
 
 ## Peran & Hak Akses
 
