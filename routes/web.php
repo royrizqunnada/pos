@@ -32,6 +32,8 @@ Route::middleware(['auth'])->group(function () {
 
     // --- Barang / Stok ---
     Route::get('barang', [ProductController::class, 'index'])->name('barang.index');
+    Route::get('barang/template-impor', [ProductController::class, 'importTemplate'])->name('barang.import-template');
+    Route::post('barang/impor', [ProductController::class, 'import'])->name('barang.import');
     Route::post('barang', [ProductController::class, 'store'])->name('barang.store');
     Route::put('barang/{product}', [ProductController::class, 'update'])->name('barang.update');
     Route::delete('barang/{product}', [ProductController::class, 'destroy'])->name('barang.destroy');

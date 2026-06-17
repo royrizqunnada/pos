@@ -4,18 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AddStockRequest;
 use App\Http\Requests\AdjustStockRequest;
+use App\Http\Requests\ImportProductRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Unit;
+use App\Services\ProductImportService;
 use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProductController extends Controller
 {
@@ -122,6 +125,39 @@ class ProductController extends Controller
         $this->stock->adjustTo($product, (float) $request->validated('stock'), $request->validated('reason'));
 
         return back()->with('success', 'Stok berhasil disesuaikan.');
+    }
+
+    /** Bulk import products (and incoming stock) from xlsx/csv. */
+    public function import(ImportProductRequest $request, ProductImportService $importer): RedirectResponse
+    {
+        $file = $request->file('file');
+        $result = $importer->import($file->getRealPath(), $file->getClientOriginalExtension());
+
+        return back()->with(
+            'success',
+            "Impor selesai: {$result['imported']} barang ({$result['created']} baru, {$result['updated']} diperbarui)."
+        );
+    }
+
+    /** Download a CSV import template. */
+    public function importTemplate(): StreamedResponse
+    {
+        $this->authorize('create', Product::class);
+
+        $header = ['nama', 'kategori', 'satuan', 'sku', 'barcode', 'harga_modal', 'harga_jual', 'harga_grosir', 'min_qty_grosir', 'stok', 'stok_minimum'];
+        $examples = [
+            ['Semen Tiga Roda 50kg', 'Semen & Perekat', 'sak', 'BJ-0001', '8991002100015', 62000, 68000, 66000, 10, 120, 20],
+            ['Pasir Beton', 'Material Curah', 'm³', '', '', 220000, 285000, '', '', 12.5, 3],
+        ];
+
+        return response()->streamDownload(function () use ($header, $examples) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, $header);
+            foreach ($examples as $row) {
+                fputcsv($out, $row);
+            }
+            fclose($out);
+        }, 'template-impor-barang.csv', ['Content-Type' => 'text/csv']);
     }
 
     /** Stock card: movement history for a single product. */

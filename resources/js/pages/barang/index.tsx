@@ -1,6 +1,7 @@
 import { CategoryBadge } from '@/components/pos/category-badge';
 import { ConfirmDialog } from '@/components/pos/confirm-dialog';
 import { EmptyState } from '@/components/pos/empty-state';
+import { ImportProductsDialog } from '@/components/pos/import-products-dialog';
 import { Pagination } from '@/components/pos/pagination';
 import { ProductFormDialog } from '@/components/pos/product-form-dialog';
 import { StatCard } from '@/components/pos/stat-card';
@@ -12,7 +13,19 @@ import PosLayout from '@/layouts/pos-layout';
 import { formatQty, formatRupiah } from '@/lib/format';
 import { type Category, type Paginated, type Product, type Unit } from '@/types';
 import { Link, router, useForm } from '@inertiajs/react';
-import { AlertTriangle, Boxes, ClipboardList, PackagePlus, Pencil, Plus, Search, SlidersHorizontal, Trash2, Wallet } from 'lucide-react';
+import {
+    AlertTriangle,
+    Boxes,
+    ClipboardList,
+    FileSpreadsheet,
+    PackagePlus,
+    Pencil,
+    Plus,
+    Search,
+    SlidersHorizontal,
+    Trash2,
+    Wallet,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface Props {
@@ -57,6 +70,7 @@ export default function BarangIndex({ products, categories, units, filters, summ
     const [stockMode, setStockMode] = useState<'add' | 'adjust'>('add');
     const [stockProduct, setStockProduct] = useState<Product | null>(null);
     const [deleting, setDeleting] = useState<Product | null>(null);
+    const [importOpen, setImportOpen] = useState(false);
     const destroy = useForm({});
 
     const openCreate = () => {
@@ -83,9 +97,14 @@ export default function BarangIndex({ products, categories, units, filters, summ
             title="Barang & Stok"
             actions={
                 can.manage && (
-                    <Button onClick={openCreate}>
-                        <Plus className="h-4 w-4" /> Tambah Barang
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={() => setImportOpen(true)}>
+                            <FileSpreadsheet className="h-4 w-4" /> Impor Excel
+                        </Button>
+                        <Button onClick={openCreate}>
+                            <Plus className="h-4 w-4" /> Tambah Barang
+                        </Button>
+                    </div>
                 )
             }
         >
@@ -250,6 +269,7 @@ export default function BarangIndex({ products, categories, units, filters, summ
             {can.manage && (
                 <>
                     <ProductFormDialog open={formOpen} onOpenChange={setFormOpen} product={editing} categories={categories} units={units} />
+                    <ImportProductsDialog open={importOpen} onOpenChange={setImportOpen} />
                     <StockDialog open={stockOpen} onOpenChange={setStockOpen} product={stockProduct} mode={stockMode} />
                     <ConfirmDialog
                         open={!!deleting}
