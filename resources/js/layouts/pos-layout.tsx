@@ -36,16 +36,17 @@ export default function PosLayout({ children, title, actions }: PosLayoutProps) 
 
             {/* Content */}
             <div className="flex min-h-screen flex-1 flex-col lg:pl-64">
-                <header className="no-print border-border bg-card/80 sticky top-0 z-20 flex h-16 items-center gap-4 border-b px-4 backdrop-blur-sm sm:px-6">
+                <header className="no-print border-border bg-card/80 sticky top-0 z-20 flex min-h-16 items-center gap-3 border-b px-4 py-2.5 backdrop-blur-sm sm:px-6">
                     <button
                         type="button"
                         onClick={() => setMobileOpen(true)}
-                        className="text-muted-foreground hover:bg-accent hover:text-foreground rounded-md p-2 lg:hidden"
+                        className="text-muted-foreground hover:bg-accent hover:text-foreground -ml-1 shrink-0 rounded-md p-2 lg:hidden"
+                        aria-label="Buka menu"
                     >
                         <Menu className="h-5 w-5" />
                     </button>
-                    <h1 className="font-display text-foreground text-lg font-semibold sm:text-xl">{title}</h1>
-                    <div className="ml-auto flex items-center gap-2">{actions}</div>
+                    <h1 className="font-display text-foreground min-w-0 flex-1 truncate text-base font-semibold sm:text-xl">{title}</h1>
+                    {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
                 </header>
 
                 <main className="flex-1 p-4 sm:p-6">{children}</main>

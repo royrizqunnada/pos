@@ -99,10 +99,13 @@ export default function BarangIndex({ products, categories, units, filters, summ
                 can.manage && (
                     <div className="flex items-center gap-2">
                         <Button variant="outline" onClick={() => setImportOpen(true)}>
-                            <FileSpreadsheet className="h-4 w-4" /> Impor Excel
+                            <FileSpreadsheet className="h-4 w-4" />
+                            <span className="hidden sm:inline">Impor Excel</span>
                         </Button>
                         <Button onClick={openCreate}>
-                            <Plus className="h-4 w-4" /> Tambah Barang
+                            <Plus className="h-4 w-4" />
+                            <span className="hidden sm:inline">Tambah Barang</span>
+                            <span className="sm:hidden">Barang</span>
                         </Button>
                     </div>
                 )
