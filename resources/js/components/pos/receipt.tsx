@@ -58,6 +58,7 @@ export function ReceiptDialog({ open, onOpenChange, receipt }: ReceiptDialogProp
                                         <div className="text-[11px]">
                                             {formatQty(it.qty)} {it.unit} x {formatRupiah(it.price)}
                                         </div>
+                                        {it.discount > 0 && <div className="text-[11px]">Diskon -{formatRupiah(it.discount)}</div>}
                                     </td>
                                     <td className="py-0.5 text-right whitespace-nowrap">{formatRupiah(it.subtotal)}</td>
                                 </tr>

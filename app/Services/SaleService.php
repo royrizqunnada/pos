@@ -59,13 +59,23 @@ class SaleService
                 }
 
                 $price = $product->priceForQty($qty);
-                $lineSubtotal = (int) round($price * $qty);
+                $lineGross = (int) round($price * $qty);
+
+                $lineDiscount = (int) ($line['discount'] ?? 0);
+                if ($lineDiscount < 0 || $lineDiscount > $lineGross) {
+                    throw ValidationException::withMessages([
+                        'items' => "Diskon {$product->name} tidak valid.",
+                    ]);
+                }
+
+                $lineSubtotal = $lineGross - $lineDiscount;
                 $subtotal += $lineSubtotal;
 
                 $lineItems[] = [
                     'product' => $product,
                     'qty' => $qty,
                     'price' => $price,
+                    'discount' => $lineDiscount,
                     'subtotal' => $lineSubtotal,
                 ];
             }
@@ -115,6 +125,7 @@ class SaleService
                     'unit_name' => $product->unit?->name ?? '',
                     'qty' => $li['qty'],
                     'price' => $li['price'],
+                    'discount' => $li['discount'],
                     'subtotal' => $li['subtotal'],
                 ]);
 

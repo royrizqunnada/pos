@@ -85,6 +85,7 @@ export interface ReceiptItem {
     unit: string;
     qty: number;
     price: number;
+    discount: number;
     subtotal: number;
 }
 

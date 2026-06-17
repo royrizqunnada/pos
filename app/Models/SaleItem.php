@@ -19,6 +19,7 @@ class SaleItem extends Model
         'unit_name',
         'qty',
         'price',
+        'discount',
         'subtotal',
     ];
 
@@ -27,6 +28,7 @@ class SaleItem extends Model
         return [
             'qty' => 'decimal:2',
             'price' => 'integer',
+            'discount' => 'integer',
             'subtotal' => 'integer',
         ];
     }

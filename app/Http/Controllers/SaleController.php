@@ -145,6 +145,7 @@ class SaleController extends Controller
                 'unit' => $i->unit_name,
                 'qty' => (float) $i->qty,
                 'price' => (int) $i->price,
+                'discount' => (int) $i->discount,
                 'subtotal' => (int) $i->subtotal,
             ]),
             'subtotal' => (int) $sale->subtotal,

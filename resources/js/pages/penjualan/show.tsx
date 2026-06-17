@@ -78,6 +78,7 @@ export default function PenjualanShow({ sale, receipt, can_void }: Props) {
                                         <div>{it.name}</div>
                                         <div className="text-muted-foreground text-xs">
                                             {formatQty(it.qty)} {it.unit} × {formatRupiah(it.price)}
+                                            {it.discount > 0 && <span className="text-destructive"> · diskon -{formatRupiah(it.discount)}</span>}
                                         </div>
                                     </td>
                                     <td className="tabular px-5 py-2.5 text-right font-medium">{formatRupiah(it.subtotal)}</td>

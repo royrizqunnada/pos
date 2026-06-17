@@ -28,6 +28,7 @@ interface PosProduct {
 interface CartLine {
     product: PosProduct;
     qty: number;
+    discount: number;
 }
 
 interface Props {
@@ -97,13 +98,23 @@ export default function KasirIndex({ products, categories, customers, receipt }:
                 const next = Math.min(existing.qty + qty, p.stock);
                 return prev.map((l) => (l.product.id === p.id ? { ...l, qty: next } : l));
             }
-            return [...prev, { product: p, qty: Math.min(qty, p.stock) }];
+            return [...prev, { product: p, qty: Math.min(qty, p.stock), discount: 0 }];
         });
     }
 
     function setQty(id: number, qty: number) {
         setCart((prev) =>
             prev.map((l) => (l.product.id === id ? { ...l, qty: Math.max(0, Math.min(qty, l.product.stock)) } : l)).filter((l) => l.qty > 0),
+        );
+    }
+
+    function setLineDiscount(id: number, value: number) {
+        setCart((prev) =>
+            prev.map((l) => {
+                if (l.product.id !== id) return l;
+                const gross = unitPrice(l.product, l.qty) * l.qty;
+                return { ...l, discount: Math.max(0, Math.min(Number(value) || 0, gross)) };
+            }),
         );
     }
 
@@ -127,7 +138,8 @@ export default function KasirIndex({ products, categories, customers, receipt }:
         barcodeRef.current?.focus();
     }
 
-    const subtotal = cart.reduce((sum, l) => sum + unitPrice(l.product, l.qty) * l.qty, 0);
+    const lineNet = (l: CartLine) => Math.max(unitPrice(l.product, l.qty) * l.qty - (l.discount || 0), 0);
+    const subtotal = cart.reduce((sum, l) => sum + lineNet(l), 0);
     const discount = Number(form.data.discount) || 0;
     const total = Math.max(subtotal - discount, 0);
     const paid = Number(form.data.paid_amount) || 0;
@@ -138,7 +150,7 @@ export default function KasirIndex({ products, categories, customers, receipt }:
     function submit() {
         form.transform((data) => ({
             ...data,
-            items: cart.map((l) => ({ product_id: l.product.id, qty: l.qty })),
+            items: cart.map((l) => ({ product_id: l.product.id, qty: l.qty, discount: l.discount || 0 })),
             customer_id: data.customer_id || null,
             discount: Number(data.discount) || 0,
             paid_amount: data.payment_method === 'tunai' ? Number(data.paid_amount) || 0 : 0,
@@ -283,7 +295,18 @@ export default function KasirIndex({ products, categories, customers, receipt }:
                                                     <Plus className="h-3 w-3" />
                                                 </Button>
                                             </div>
-                                            <span className="tabular text-sm font-semibold">{formatRupiah(price * l.qty)}</span>
+                                            <span className="tabular text-sm font-semibold">{formatRupiah(lineNet(l))}</span>
+                                        </div>
+                                        <div className="mt-2 flex items-center justify-between gap-2">
+                                            <label className="text-muted-foreground text-xs">Diskon item</label>
+                                            <Input
+                                                type="number"
+                                                min={0}
+                                                value={l.discount || ''}
+                                                placeholder="0"
+                                                onChange={(e) => setLineDiscount(l.product.id, Number(e.target.value))}
+                                                className="h-7 w-28 text-right"
+                                            />
                                         </div>
                                     </div>
                                 );

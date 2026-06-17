@@ -20,6 +20,7 @@ class StoreSaleRequest extends FormRequest
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
             'items.*.qty' => ['required', 'numeric', 'min:0.01'],
+            'items.*.discount' => ['nullable', 'integer', 'min:0'],
             'customer_id' => ['nullable', 'integer', 'exists:customers,id', Rule::requiredIf($this->input('payment_method') === Sale::PAYMENT_UTANG)],
             'payment_method' => ['required', Rule::in([Sale::PAYMENT_TUNAI, Sale::PAYMENT_UTANG])],
             'paid_amount' => ['nullable', 'integer', 'min:0', Rule::requiredIf($this->input('payment_method') === Sale::PAYMENT_TUNAI)],
