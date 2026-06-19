@@ -234,16 +234,13 @@ export default function BarangIndex({ products, categories, units, filters, summ
                                                             <ClipboardList className="h-4 w-4" />
                                                         </Link>
                                                     </Button>
-                                                    <Button size="icon" variant="ghost" title="Tambah stok" onClick={() => openStock(p, 'add')}>
-                                                        <PackagePlus className="h-4 w-4" />
-                                                    </Button>
                                                     <Button
                                                         size="icon"
                                                         variant="ghost"
-                                                        title="Penyesuaian stok"
-                                                        onClick={() => openStock(p, 'adjust')}
+                                                        title="Kelola stok (tambah / opname)"
+                                                        onClick={() => openStock(p, 'add')}
                                                     >
-                                                        <SlidersHorizontal className="h-4 w-4" />
+                                                        <PackagePlus className="h-4 w-4" />
                                                     </Button>
                                                     <Button size="icon" variant="ghost" title="Edit" onClick={() => openEdit(p)}>
                                                         <Pencil className="h-4 w-4" />
