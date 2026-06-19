@@ -50,6 +50,7 @@ export default function KasirIndex({ products, categories, customers, receipt }:
     const [activeCat, setActiveCat] = useState<number | null>(null);
     const [cart, setCart] = useState<CartLine[]>([]);
     const barcodeRef = useRef<HTMLInputElement>(null);
+    const cartRef = useRef<HTMLDivElement>(null);
     const [barcode, setBarcode] = useState('');
     const [barcodeError, setBarcodeError] = useState('');
 
@@ -160,7 +161,7 @@ export default function KasirIndex({ products, categories, customers, receipt }:
 
     return (
         <PosLayout title="Kasir">
-            <div className="grid gap-4 lg:grid-cols-[1fr_390px]">
+            <div className="grid gap-4 pb-20 lg:grid-cols-[1fr_390px] lg:pb-0">
                 {/* Product picker */}
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-3 sm:flex-row">
@@ -219,7 +220,7 @@ export default function KasirIndex({ products, categories, customers, receipt }:
                                     disabled={out}
                                     onClick={() => addToCart(p)}
                                     className={cn(
-                                        'border-border bg-card hover:border-primary flex flex-col rounded-xl border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+                                        'border-border bg-card hover:border-primary active:border-primary active:bg-primary/5 flex flex-col rounded-xl border p-3 text-left transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50',
                                     )}
                                 >
                                     {p.category && <CategoryBadge name={p.category.name} color={p.category.color} />}
@@ -240,7 +241,7 @@ export default function KasirIndex({ products, categories, customers, receipt }:
                 </div>
 
                 {/* Cart */}
-                <div className="border-border bg-card flex h-fit flex-col rounded-xl border lg:sticky lg:top-20">
+                <div ref={cartRef} className="border-border bg-card flex h-fit scroll-mt-20 flex-col rounded-xl border lg:sticky lg:top-20">
                     <div className="border-border flex items-center gap-2 border-b px-4 py-3">
                         <ShoppingCart className="text-primary h-5 w-5" />
                         <span className="font-display font-semibold">Keranjang</span>
@@ -412,6 +413,23 @@ export default function KasirIndex({ products, categories, customers, receipt }:
                     </div>
                 </div>
             </div>
+
+            {/* Mobile floating cart bar — gives instant feedback on tap & quick access to checkout */}
+            {cart.length > 0 && (
+                <div className="no-print border-border bg-card/95 fixed inset-x-0 bottom-0 z-30 border-t p-3 backdrop-blur-sm lg:hidden">
+                    <button
+                        type="button"
+                        onClick={() => cartRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                        className="bg-success text-success-foreground flex w-full items-center justify-between rounded-lg px-4 py-3"
+                    >
+                        <span className="flex items-center gap-2 font-medium">
+                            <ShoppingCart className="h-5 w-5" />
+                            {cart.length} item
+                        </span>
+                        <span className="tabular font-display font-bold">{formatRupiah(total)} →</span>
+                    </button>
+                </div>
+            )}
 
             <ReceiptDialog open={receiptOpen} onOpenChange={setReceiptOpen} receipt={receipt} />
         </PosLayout>
